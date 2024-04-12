@@ -8,6 +8,8 @@ services:
       args:
         CUDA_ARCH: ${CUDA_ARCH:-89-real;90-real}
     image: whisperfusion:latest
+    env_file:
+      - .env
     volumes:
       - type: bind
         source: ./docker/scratch-space
