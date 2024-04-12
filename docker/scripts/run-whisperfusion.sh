@@ -9,4 +9,4 @@ cd /root/scratch-space/
 echo "Running main.py"
 cd /root/WhisperFusion
 exec python3 main.py --gpt \
-                --whisper_tensorrt_path /root/whisper_small_en
+                --whisper_tensorrt_path /root/scratch-space/models/whisper_small_en
