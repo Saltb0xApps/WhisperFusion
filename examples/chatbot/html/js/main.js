@@ -12,7 +12,7 @@ var recordingTime = 0;
 var server_state = 0;
 var websocket_audio = null;
 let audioContext_tts = null;
-var you_name = "Marcus"
+var you_name = "Akhil"
 
 var audioContext = null;
 var audioWorkletNode = null;
@@ -163,19 +163,7 @@ function initWebSocket() {
         if (new_transcription_element_state) {
             available_transcription_elements = available_transcription_elements + 1;
 
-            var img_src = "0.png";
-            if (you_name.toLowerCase() == "marcus") {
-                you_name = "Marcus";
-                img_src = "0.png";
-            } else if (you_name.toLowerCase() == "vineet") {
-                you_name = "Vineet";
-                img_src = "1.png";
-            } else if (you_name.toLowerCase() == "jakub") {
-                you_name = "Jakub";
-                img_src = "2.png";
-            }
-
-            new_transcription_element(you_name, img_src);
+            new_transcription_element(you_name, "0.png");
             new_text_element("<p>" +  data["segments"][0].text + "</p>", "transcription-" + available_transcription_elements);
             new_transcription_element_state = false;
         }
@@ -185,7 +173,7 @@ function initWebSocket() {
             new_transcription_element_state = true;
         }
       } else if ("llm_output" in data) {
-            new_transcription_element("Phi-2", "Phi.svg");
+            new_transcription_element("ANI", "Phi.svg");
             new_text_element("<p>" +  data["llm_output"][0] + "</p>", "llm-" + available_transcription_elements);
       }
 
