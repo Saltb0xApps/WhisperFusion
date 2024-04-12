@@ -98,7 +98,7 @@ class Client:
         )
 
         if host is not None and port is not None:
-            socket_url = f"ws://{host}:{port}"
+            socket_url = f"wss://{host}:{port}"
             self.client_socket = websocket.WebSocketApp(
                 socket_url,
                 on_open=lambda ws: self.on_open(ws),
@@ -123,7 +123,7 @@ class Client:
         print("[INFO]: * recording")
 
         # TTS audio websocket client
-        socket_url = f"ws://{host}:8888"
+        socket_url = f"wss://{host}:8888"
         self.tts_client_socket = websocket.WebSocketApp(
             socket_url,
             on_open=lambda ws: self.on_open_tts(ws),
