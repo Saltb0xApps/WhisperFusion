@@ -21,7 +21,7 @@ class GPTEngine:
         self.eos = False
 
         self.openai_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-        logging.info("[LLM INFO:] Connected to OpenAI.")
+        logging.info("[LLM INFO:] Connected to OpenAI 2.")
 
     def run(
         self,
