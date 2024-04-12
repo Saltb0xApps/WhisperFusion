@@ -163,7 +163,7 @@ function initWebSocket() {
         if (new_transcription_element_state) {
             available_transcription_elements = available_transcription_elements + 1;
 
-            new_transcription_element(you_name, "0.png");
+            new_transcription_element(you_name, "akhil.png");
             new_text_element("<p>" +  data["segments"][0].text + "</p>", "transcription-" + available_transcription_elements);
             new_transcription_element_state = false;
         }
@@ -173,7 +173,7 @@ function initWebSocket() {
             new_transcription_element_state = true;
         }
       } else if ("llm_output" in data) {
-            new_transcription_element("ANI", "Phi.svg");
+            new_transcription_element("ANI", "neto-svg.svg");
             new_text_element("<p>" +  data["llm_output"][0] + "</p>", "llm-" + available_transcription_elements);
       }
 
