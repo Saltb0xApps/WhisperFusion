@@ -6,6 +6,7 @@ echo "Running build-models.sh..."
 cd /root/scratch-space/
 ./build-models.sh
 
+echo "Running main.py"
 cd /root/WhisperFusion
 exec python3 main.py --gpt \
                 --whisper_tensorrt_path /root/whisper_small_en
