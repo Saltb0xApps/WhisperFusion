@@ -7,12 +7,5 @@ cd /root/scratch-space/
 ./build-models.sh
 
 cd /root/WhisperFusion
-if [ "$1" != "phi" ]; then
-  exec python3 main.py --gpt \
-                  --whisper_tensorrt_path /root/whisper_small_en
-else
-  exec python3 main.py --phi \
-                  --whisper_tensorrt_path /root/scratch-space/models/whisper_small_en \
-                  --phi_tensorrt_path /root/scratch-space/models/dolphin-2_6-phi-2 \
-                  --phi_tokenizer_path /root/scratch-space/models/dolphin-2_6-phi-2/tokenizer
-fi
+exec python3 main.py --gpt \
+                --whisper_tensorrt_path /root/whisper_small_en
