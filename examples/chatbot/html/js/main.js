@@ -262,7 +262,6 @@ function new_whisper_speech_audio_element(id, duration) {
     var audio_div_element = document.createElement("div");
     var audio_element = document.createElement("audio");
     audio_element.style.paddingTop = "20px";
-    audio_element.style.opacity = 0.1;
 
     if (duration > 10)
         duration = 10;
