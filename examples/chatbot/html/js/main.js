@@ -62,7 +62,7 @@ const start_recording = async () => {
 
             audioWorkletNode.port.onmessage = (event) => {
                 if (server_state != 1) {
-                  console.log("server is not ready!!")
+                  console.log("server is not ready!! 2")
                   return;
                 }
                 const audioData = event.data;
@@ -93,9 +93,9 @@ const startRecording = async () => {
     audioContext_tts = new AudioContext({ sampleRate: 24000 });
 
     document.getElementById("recording-stop-btn").style.display = "block";
-    document.getElementById("recording-dot").style.display = "block";
-    document.getElementById("recording-line").style.display = "block";
-    document.getElementById("recording-time").style.display = "block";
+    document.getElementById("recording-dot").style.display = "none";
+    document.getElementById("recording-line").style.display = "none";
+    document.getElementById("recording-time").style.display = "none";
     
     intervalFunction = setInterval(recording_timer, 1000);
 
@@ -257,7 +257,8 @@ function new_llm_time_element(time) {
 function new_whisper_speech_audio_element(id, duration) {
     var audio_container = document.createElement("div");
     audio_container.className = "whisperspeech-audio-container";
-    audio_container.style.maxWidth = "500px";
+    audio_container.style.maxWidth = "40px";
+    audio_container.style.maxHeight = "40px";
 
     var audio_div_element = document.createElement("div");
     var audio_element = document.createElement("audio");
