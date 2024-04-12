@@ -163,7 +163,7 @@ function initWebSocket() {
         if (new_transcription_element_state) {
             available_transcription_elements = available_transcription_elements + 1;
 
-            new_transcription_element(you_name, "0.png");
+            new_transcription_element(you_name, "https://assets-global.website-files.com/642d7fa975d75b7db86d8846/6544afddd4acba67aa34f2a3_Mask%20group(5).svg");
             new_text_element("<p>" +  data["segments"][0].text + "</p>", "transcription-" + available_transcription_elements);
             new_transcription_element_state = false;
         }
@@ -173,7 +173,7 @@ function initWebSocket() {
             new_transcription_element_state = true;
         }
       } else if ("llm_output" in data) {
-            new_transcription_element("ANI", "Phi.svg");
+            new_transcription_element("ANI", "https://assets-global.website-files.com/642d7fa975d75b7db86d8846/64ffc6911e069e808b9d99b7_Vectors-Wrapper.svg");
             new_text_element("<p>" +  data["llm_output"][0] + "</p>", "llm-" + available_transcription_elements);
       }
 
@@ -186,7 +186,7 @@ function new_transcription_element(speaker_name, speaker_avatar) {
     avatar_container.className = "avatar-container";
 
     var avatar_img = document.createElement("div");
-    avatar_img.innerHTML = "<img class='avatar' src='img/" + speaker_avatar + "' \>";
+    avatar_img.innerHTML = "<img class='avatar' src=" + speaker_avatar +" \>";
 
     var avatar_name = document.createElement("div");
     avatar_name.className = "avatar-name";
