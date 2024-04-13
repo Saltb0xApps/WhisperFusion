@@ -18,6 +18,7 @@ class ElevenLabsTTS:
             "xi-api-key": self.api_key
         }
         self.endpoint = f"https://api.elevenlabs.io/v1/text-to-speech/{self.voice_id}"
+        self.last_llm_response = None
 
     def initialize_model(self):
         # Test the API connection with a warm-up request
