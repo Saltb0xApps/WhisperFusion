@@ -107,35 +107,69 @@ function stopRecording() {
     clearInterval(intervalFunction);
 }
 
+let audioQueue = [];
+let isPlaying = false;
+
+function createAudioElement(id) {
+    let audioElement = document.getElementById(id);
+    if (!audioElement) {
+        var audio_container = document.createElement("div");
+        audio_container.className = "whisperspeech-audio-container";
+        audio_container.style.maxWidth = "500px";
+
+        var audio_div_element = document.createElement("div");
+        audioElement = document.createElement("audio");
+        audioElement.id = id;
+        audioElement.controls = true;
+        audioElement.style.paddingTop = "20px";
+
+        audio_div_element.appendChild(audioElement);
+        audio_container.appendChild(audio_div_element);
+        document.getElementById("main-wrapper").appendChild(audio_container);
+    }
+    return audioElement;
+}
+
+function playAudioBlob(audioElement, audioBlob) {
+    let audioSourceUrl = URL.createObjectURL(audioBlob);
+    audioElement.src = audioSourceUrl;
+
+    audioElement.oncanplay = () => {
+        audioElement.play()
+        .then(() => {
+            isPlaying = false;
+            processQueue(); // Play next in queue when current playback finishes
+        })
+        .catch(e => console.error("Playback error:", e));
+    };
+}
+
+function processQueue() {
+    if (audioQueue.length > 0 && !isPlaying) {
+        isPlaying = true;
+        let audioBlob = audioQueue.shift();
+        let audioElement = createAudioElement("audio-playback");
+        playAudioBlob(audioElement, audioBlob);
+    }
+}
+
+function queueAudioPlayback(audioBlob) {
+    audioQueue.push(audioBlob);
+    processQueue();
+}
+
 function initWebSocket() {
     websocket_audio = new WebSocket(websocket_audio_uri);
-    websocket_audio.binaryType = "blob";  // Change to 'blob' to handle binary audio data
+    websocket_audio.binaryType = "arraybuffer";
 
     websocket_audio.onopen = function() { }
     websocket_audio.onclose = function(e) { }
-
     websocket_audio.onmessage = function(e) {
-        available_audio_elements++;
-
-        // Convert blob to array buffer for use with the Web Audio API
-        e.data.arrayBuffer().then(function(buffer) {
-            audioContext_tts.decodeAudioData(buffer, function(decodedAudio) {
-                let audioBuffer = decodedAudio;
-                let audioSource = audioContext_tts.createBufferSource();
-                audioSource.buffer = audioBuffer;
-                audioSource.connect(audioContext_tts.destination);
-
-                // Create a control UI element for this audio source
-                new_whisper_speech_audio_element("audio-" + available_audio_elements, Math.floor(audioBuffer.duration));
-                audio_sources.push(audioSource);  // Store the source for later use
-
-                audioSource.start();
-            }, function(e) {
-                console.log("Error decoding audio data: " + e.err);
-            });
-        });
-
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        let audioData = e.data; // Directly using ArrayBuffer received
+        console.log("Received audio data:", audioData);
+        let audioBlob = new Blob([audioData], { type: 'audio/mp3' }); // Correct type if server sends different format
+        console.log("Received audio blob:", audioBlob);
+        queueAudioPlayback(audioBlob);
     };
 
     websocket = new WebSocket(websocket_uri);
