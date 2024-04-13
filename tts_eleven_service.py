@@ -82,9 +82,9 @@ class ElevenLabsTTS:
                     if response.status_code == 200:
                         logging.info(f"[ElevenLabs INFO:] TTS inference done in {inference_time:.2f} seconds.")
                         self.last_llm_response = llm_output.strip()
-                        for chunk in response.iter_content(chunk_size=1024):
-                            if chunk:
-                                websocket.send(chunk)
+                        # Accumulate all chunks into a single bytes object
+                        audio_data = response.content  # gets all the content in one go
+                        websocket.send(audio_data)  # send the complete audio data as one message
                     else:
                         logging.error(f"[ElevenLabs ERROR:] Failed to generate speech, status code {response.status_code}")
                         continue
