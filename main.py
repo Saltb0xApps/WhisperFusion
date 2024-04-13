@@ -21,28 +21,6 @@ def parse_arguments():
                         type=str,
                         default="/root/TensorRT-LLM/examples/whisper/whisper_small_en",
                         help='Whisper TensorRT model path')
-    parser.add_argument('--mistral',
-                        action="store_true",
-                        help='Mistral')
-    parser.add_argument('--mistral_tensorrt_path',
-                        type=str,
-                        default=None,
-                        help='Mistral TensorRT model path')
-    parser.add_argument('--mistral_tokenizer_path',
-                        type=str,
-                        default="teknium/OpenHermes-2.5-Mistral-7B",
-                        help='Mistral TensorRT model path')
-    parser.add_argument('--phi',
-                        action="store_true",
-                        help='Phi')
-    parser.add_argument('--phi_tensorrt_path',
-                        type=str,
-                        default="/root/TensorRT-LLM/examples/phi/phi_engine",
-                        help='Phi TensorRT model path')
-    parser.add_argument('--phi_tokenizer_path',
-                        type=str,
-                        default="/root/TensorRT-LLM/examples/phi/phi-2",
-                        help='Phi Tokenizer path')
     parser.add_argument('--gpt',
                         action="store_true",
                         help='GPT')
@@ -53,20 +31,6 @@ if __name__ == "__main__":
     args = parse_arguments()
     if not args.whisper_tensorrt_path:
         raise ValueError("Please provide whisper_tensorrt_path to run the pipeline.")
-        import sys
-        sys.exit(0)
-    
-    if args.mistral:
-        if not args.mistral_tensorrt_path or not args.mistral_tokenizer_path:
-            raise ValueError("Please provide mistral_tensorrt_path and mistral_tokenizer_path to run the pipeline.")
-            import sys
-            sys.exit(0)
-
-    if args.phi:
-        if not args.phi_tensorrt_path or not args.phi_tokenizer_path:
-            raise ValueError("Please provide phi_tensorrt_path and phi_tokenizer_path to run the pipeline.")
-            import sys
-            sys.exit(0)
 
     multiprocessing.set_start_method('spawn')
     
@@ -95,7 +59,6 @@ if __name__ == "__main__":
     whisper_process.start()
 
     llm_provider = GPTEngine()
-    # llm_provider = MistralTensorRTLLMProvider()
     llm_process = multiprocessing.Process(
         target=llm_provider.run,
         args=(

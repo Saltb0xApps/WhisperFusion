@@ -8,10 +8,3 @@ if [ ! -d "/root/scratch-space/models/whisper_small_en" ] || [ -z "$(ls -A /root
 else
     echo "whisper_small_en directory exists and is not empty. Skipping build-whisper.sh..."
 fi
-# ./build-mistral.sh
-if [ ! -d "/root/scratch-space/models/dolphin-2_6-phi-2" ] || [ -z "$(ls -A /root/scratch-space/models/dolphin-2_6-phi-2)" ]; then
-    echo "dolphin-2_6-phi-2 directory does not exist or is empty. Running build-dolphin-2_6-phi-2.sh..."
-    ./build-dolphin-2_6-phi-2.sh
-else
-    echo "dolphin-2_6-phi-2 directory exists and is not empty. Skipping build-dolphin-2_6-phi-2.sh..."
-fi
