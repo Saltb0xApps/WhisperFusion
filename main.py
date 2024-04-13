@@ -107,8 +107,8 @@ if __name__ == "__main__":
     llm_process.start()
 
     # audio process
-    tts_runner = ElevenLabsTTS(api_key=os.environ.get("ELEVENLABS_API_KEY"), voice_id="oUGOShPS8u7GpLTKywae")
-    tts_process = multiprocessing.Process(target=tts_runner.run, args=("0.0.0.0", 8888, audio_queue, should_send_server_ready))
+    tts_runner = ElevenLabsTTS()
+    tts_process = multiprocessing.Process(target=tts_runner.run, args=("0.0.0.0", 8888, os.environ.get("ELEVENLABS_API_KEY"), "oUGOShPS8u7GpLTKywae", audio_queue, should_send_server_ready))
     tts_process.start()
 
     llm_process.join()

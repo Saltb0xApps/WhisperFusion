@@ -9,7 +9,10 @@ from websockets.sync.server import serve
 logging.basicConfig(level=logging.INFO)
 
 class ElevenLabsTTS:
-    def __init__(self, api_key, voice_id):
+    def __init__(self):
+        pass
+
+    def initialize_model(self, api_key, voice_id):
         self.api_key = api_key
         self.voice_id = voice_id
         self.headers = {
@@ -18,9 +21,7 @@ class ElevenLabsTTS:
             "xi-api-key": self.api_key
         }
         self.endpoint = f"https://api.elevenlabs.io/v1/text-to-speech/{self.voice_id}"
-        self.last_llm_response = None
-
-    def initialize_model(self):
+    
         # Test the API connection with a warm-up request
         logging.info("\n[ElevenLabs INFO:] Warming up ElevenLabs TTS API. Please wait ...\n")
         data = {
@@ -37,9 +38,10 @@ class ElevenLabsTTS:
         else:
             logging.warning(f"[ElevenLabs WARNING:] API warmup failed with status code {response.status_code}")
         logging.info("[ElevenLabs INFO:] Warmed up ElevenLabs TTS API. Connect to the WebGUI now.")
+        self.last_llm_response = None
 
-    def run(self, host, port, audio_queue=None, should_send_server_ready=None):
-        self.initialize_model()
+    def run(self, host, port, api_key, voice_id, audio_queue=None, should_send_server_ready=None):
+        self.initialize_model(api_key=api_key, voice_id=voice_id)
         should_send_server_ready.value = True
 
         with serve(
