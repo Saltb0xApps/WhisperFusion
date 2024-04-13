@@ -51,6 +51,9 @@ class ElevenLabsTTS:
             server.serve_forever()
 
     def start_elevenlabs_tts(self, websocket, audio_queue=None):
+        self.eos = False
+        self.output_audio = None
+
         while True:
             llm_response = audio_queue.get()
             if audio_queue.qsize() != 0:
@@ -64,33 +67,30 @@ class ElevenLabsTTS:
                 break
 
             llm_output = llm_response["llm_output"][0]
-            eos = llm_response["eos"]
+            self.eos = llm_response["eos"]
 
             if self.last_llm_response != llm_output.strip():
-                data = {
-                    "text": llm_output.strip(),
-                    "model_id": "eleven_monolingual_v1",
-                    "voice_settings": {
-                        "stability": 0.5,
-                        "similarity_boost": 0.5
-                    }
-                }
                 try:
                     start = time.time()
-                    response = requests.post(self.endpoint, json=data, headers=self.headers)
+                    response = requests.post(self.endpoint, json={
+                        "text": llm_output.strip(),
+                        "model_id": "eleven_monolingual_v1",
+                        "voice_settings": {
+                            "stability": 0.5,
+                            "similarity_boost": 0.5
+                        }
+                    }, headers=self.headers)
+                    self.output_audio = response.content 
+                    self.last_llm_response = llm_output.strip()
+                    
                     inference_time = time.time() - start
-                    if response.status_code == 200:
-                        logging.info(f"[ElevenLabs INFO:] TTS inference done in {inference_time:.2f} seconds.")
-                        self.last_llm_response = llm_output.strip()
-                        # Accumulate all chunks into a single bytes object
-                        audio_data = response.content  # gets all the content in one go
-                        websocket.send(audio_data)  # send the complete audio data as one message
-                    else:
-                        logging.error(f"[ElevenLabs ERROR:] Failed to generate speech, status code {response.status_code}")
-                        continue
+                    logging.info(f"[ElevenLabs INFO:] TTS inference done in {inference_time:.2f} seconds.")
                 except Exception as e:
                     logging.error(f"[ElevenLabs ERROR:] Error during TTS request: {e}")
                     continue
 
-            if eos:
-                break  # Exit the loop if end of session
+            if self.eos and self.output_audio is not None:
+                try:
+                    websocket.send(self.output_audio)
+                except Exception as e:
+                    logging.error(f"[WhisperSpeech ERROR:] Audio error: {e}")
