@@ -109,28 +109,34 @@ function stopRecording() {
 
 function initWebSocket() {
     websocket_audio = new WebSocket(websocket_audio_uri);
-    websocket_audio.binaryType = "arraybuffer";
+    websocket_audio.binaryType = "blob";  // Change to 'blob' to handle binary audio data
 
     websocket_audio.onopen = function() { }
     websocket_audio.onclose = function(e) { }
+
     websocket_audio.onmessage = function(e) {
         available_audio_elements++;
-        
-        let float32Array = new Float32Array(e.data);
-        let audioBuffer = audioContext_tts.createBuffer(1, float32Array.length, 24000);
-        audioBuffer.getChannelData(0).set(float32Array);
 
-        new_whisper_speech_audio_element("audio-" + available_audio_elements, Math.floor(audioBuffer.duration));
+        // Convert blob to array buffer for use with the Web Audio API
+        e.data.arrayBuffer().then(function(buffer) {
+            audioContext_tts.decodeAudioData(buffer, function(decodedAudio) {
+                let audioBuffer = decodedAudio;
+                let audioSource = audioContext_tts.createBufferSource();
+                audioSource.buffer = audioBuffer;
+                audioSource.connect(audioContext_tts.destination);
 
-        audio_sources.push(audioBuffer);
+                // Create a control UI element for this audio source
+                new_whisper_speech_audio_element("audio-" + available_audio_elements, Math.floor(audioBuffer.duration));
+                audio_sources.push(audioSource);  // Store the source for later use
 
-        audio_source = audioContext_tts.createBufferSource();
-        audio_source.buffer = audioBuffer;
-        audio_source.connect(audioContext_tts.destination);
-        audio_source.start();
+                audioSource.start();
+            }, function(e) {
+                console.log("Error decoding audio data: " + e.err);
+            });
+        });
 
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    }
+    };
 
     websocket = new WebSocket(websocket_uri);
     websocket.binaryType = "arraybuffer";
