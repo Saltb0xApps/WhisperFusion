@@ -177,6 +177,12 @@ function initWebSocket() {
         document.getElementById("transcription-" + available_transcription_elements).innerHTML = "<p>" + data["segments"][0].text + "</p>"; 
 
         console.log("2. Audio interrupted by new segments so as to not overlap with the person speaking!!")
+        for (let i = 0; i < audio_sources.length; i++) {
+            audio_sources[i].stop();
+            audio_sources[i].disconnect();
+            audio_sources[i].buffer = null;
+        }
+
         if (audio_source) {
             audio_source.buffer = null;
             audio_source.disconnect();
@@ -189,15 +195,6 @@ function initWebSocket() {
         }
 
       } else if ("llm_output" in data) {
-        console.log("1. Audio interrupted by new segments so as to not overlap with the person speaking!!")
-        // if audio is playing right now when new segments are being received, stop the audio playback
-        if (audio_source) {
-            audio_source.buffer = null;
-            audio_source.disconnect();
-            audio_source.stop();
-        }
-        stopAllPlayingAudio();
-
         new_transcription_element("ANI", "https://assets-global.website-files.com/642d7fa975d75b7db86d8846/64ffc6911e069e808b9d99b7_Vectors-Wrapper.svg");
         new_text_element("<p>" +  data["llm_output"][0] + "</p>", "llm-" + available_transcription_elements);
       }
@@ -357,7 +354,7 @@ function stopAllPlayingAudio() {
         // Check if the audio is playing
         if (!audioElements[i].paused) {
             // Stop the audio
-            audioElements[i].pause();
+            audioElements[i].stop();
             // Reset the playback position to the beginning
             audioElements[i].currentTime = 0;
         }
