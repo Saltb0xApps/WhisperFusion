@@ -20,7 +20,7 @@ class ElevenLabsTTS:
             "Content-Type": "application/json",
             "xi-api-key": self.api_key
         }
-        self.endpoint = f"https://api.elevenlabs.io/v1/text-to-speech/{self.voice_id}/stream"
+        self.endpoint = f"https://api.elevenlabs.io/v1/text-to-speech/{self.voice_id}"
     
         # Test the API connection with a warm-up request
         logging.info("\n[ElevenLabs INFO:] Warming up ElevenLabs TTS API. Please wait ...\n")
@@ -52,6 +52,7 @@ class ElevenLabsTTS:
 
     def start_elevenlabs_tts(self, websocket, audio_queue=None):
         self.eos = False
+        self.output_audio = None
 
         while True:
             llm_response = audio_queue.get()
@@ -79,16 +80,17 @@ class ElevenLabsTTS:
                             "similarity_boost": 0.5
                         }
                     }, headers=self.headers)
-
+                    self.output_audio = response.content 
                     self.last_llm_response = llm_output.strip()
-
-                    if self.eos:
-                        for chunk in response.iter_content(chunk_size=1024):
-                            if chunk:
-                                websocket.send(chunk)
-                                inference_time = time.time() - start
-                                logging.info(f"[ElevenLabs INFO:] TTS inference done in {inference_time:.2f} seconds.")
-
+                    
+                    inference_time = time.time() - start
+                    logging.info(f"[ElevenLabs INFO:] TTS inference done in {inference_time:.2f} seconds.")
                 except Exception as e:
                     logging.error(f"[ElevenLabs ERROR:] Error during TTS request: {e}")
                     continue
+
+            if self.eos and self.output_audio is not None:
+                try:
+                    websocket.send(self.output_audio)
+                except Exception as e:
+                    logging.error(f"[WhisperSpeech ERROR:] Audio error: {e}")
