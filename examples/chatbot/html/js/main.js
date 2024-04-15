@@ -24,6 +24,7 @@ var llm_outputs = [];
 var new_transcription_element_state = true;
 var audio_sources = [];
 var audio_source = null;
+var isAudioPlaying = false; 
 
 initWebSocket();
 
@@ -173,11 +174,19 @@ function initWebSocket() {
             new_text_element("<p>" +  data["segments"][0].text + "</p>", "transcription-" + available_transcription_elements);
             new_transcription_element_state = false;
         }
+
+        if (isAudioPlaying) {
+            // if audio is playing right now when new segments are being received, stop the audio playback
+            audio_source.stop();
+            isAudioPlaying = false;
+        }
+
         document.getElementById("transcription-" + available_transcription_elements).innerHTML = "<p>" + data["segments"][0].text + "</p>"; 
 
         if (data["eos"] == true) {
             new_transcription_element_state = true;
         }
+
       } else if ("llm_output" in data) {
             new_transcription_element("ANI", "https://assets-global.website-files.com/642d7fa975d75b7db86d8846/64ffc6911e069e808b9d99b7_Vectors-Wrapper.svg");
             new_text_element("<p>" +  data["llm_output"][0] + "</p>", "llm-" + available_transcription_elements);
@@ -287,6 +296,8 @@ function new_whisper_speech_audio_element(id, duration) {
         audio_source.buffer = audio_sources[id];
         audio_source.connect(audioContext_tts.destination);
         audio_source.start()
+
+        isAudioPlaying = true;  // Set to true when audio starts playing
     };
     audio_element.onpause = function() {
         this.currentTime = 0;
@@ -295,7 +306,13 @@ function new_whisper_speech_audio_element(id, duration) {
         if (audio_source) {
             audio_source.stop();
         }
+
+        isAudioPlaying = false;  // Reset to false when audio stops playing
     };
+    audio_element.onended = function() {
+        isAudioPlaying = false;  // Reset to false when audio stops playing
+    }
+
     audio_element.controls = true;
 
     audio_div_element.appendChild(audio_element);
