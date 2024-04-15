@@ -24,7 +24,6 @@ var llm_outputs = [];
 var new_transcription_element_state = true;
 var audio_sources = [];
 var audio_source = null;
-var isAudioPlaying = false; 
 
 initWebSocket();
 
@@ -130,18 +129,6 @@ function initWebSocket() {
                 new_whisper_speech_audio_element("audio-" + available_audio_elements, Math.floor(audioBuffer.duration));
                 audio_sources.push(audioSource);  // Store the source for later use
 
-                console.log("3. Audio interrupted by new segments so as to not overlap with the person speaking!!")
-
-                if (isAudioPlaying) {        
-                    // if audio is playing right now when new segments are being received, stop the audio playback
-                    if (audio_source) {
-                        audio_source.buffer = null;
-                        audio_source.disconnect();
-                        audio_source.stop();
-                    }
-                    isAudioPlaying = false;
-                }
-
                 audioSource.start();
             }, function(e) {
                 console.log("Error decoding audio data: " + e.err);
@@ -190,34 +177,26 @@ function initWebSocket() {
         document.getElementById("transcription-" + available_transcription_elements).innerHTML = "<p>" + data["segments"][0].text + "</p>"; 
 
         console.log("2. Audio interrupted by new segments so as to not overlap with the person speaking!!")
-
-        if (isAudioPlaying) {
-            // if audio is playing right now when new segments are being received, stop the audio playback
-            if (audio_source) {
-                audio_source.buffer = null;
-                audio_source.disconnect();
-                audio_source.stop();
-            }
-            isAudioPlaying = false;
+        if (audio_source) {
+            audio_source.buffer = null;
+            audio_source.disconnect();
+            audio_source.stop();
         }
+        stopAllPlayingAudio();
 
         if (data["eos"] == true) {
             new_transcription_element_state = true;
         }
 
       } else if ("llm_output" in data) {
-
         console.log("1. Audio interrupted by new segments so as to not overlap with the person speaking!!")
-
-        if (isAudioPlaying) {
-            // if audio is playing right now when new segments are being received, stop the audio playback
-            if (audio_source) {
-                audio_source.buffer = null;
-                audio_source.disconnect();
-                audio_source.stop();
-            }
-            isAudioPlaying = false;
+        // if audio is playing right now when new segments are being received, stop the audio playback
+        if (audio_source) {
+            audio_source.buffer = null;
+            audio_source.disconnect();
+            audio_source.stop();
         }
+        stopAllPlayingAudio();
 
         new_transcription_element("ANI", "https://assets-global.website-files.com/642d7fa975d75b7db86d8846/64ffc6911e069e808b9d99b7_Vectors-Wrapper.svg");
         new_text_element("<p>" +  data["llm_output"][0] + "</p>", "llm-" + available_transcription_elements);
@@ -328,8 +307,6 @@ function new_whisper_speech_audio_element(id, duration) {
         audio_source.buffer = audio_sources[id];
         audio_source.connect(audioContext_tts.destination);
         audio_source.start()
-
-        isAudioPlaying = true;  // Set to true when audio starts playing
     };
     audio_element.onpause = function() {
         this.currentTime = 0;
@@ -338,12 +315,8 @@ function new_whisper_speech_audio_element(id, duration) {
         if (audio_source) {
             audio_source.stop();
         }
-
-        isAudioPlaying = false;  // Reset to false when audio stops playing
     };
-    audio_element.onended = function() {
-        isAudioPlaying = false;  // Reset to false when audio stops playing
-    }
+    audio_element.onended = function() {}
 
     audio_element.controls = true;
 
@@ -373,6 +346,22 @@ function new_whisper_speech_time_element(time) {
     text_container.appendChild(dummy_element);
 
     document.getElementById("main-wrapper").appendChild(text_container);
+}
+
+function stopAllPlayingAudio() {
+    // Get all audio elements in the document
+    var audioElements = document.getElementsByTagName("audio");
+
+    // Loop through all audio elements
+    for (var i = 0; i < audioElements.length; i++) {
+        // Check if the audio is playing
+        if (!audioElements[i].paused) {
+            // Stop the audio
+            audioElements[i].pause();
+            // Reset the playback position to the beginning
+            audioElements[i].currentTime = 0;
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
