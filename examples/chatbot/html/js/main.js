@@ -130,6 +130,18 @@ function initWebSocket() {
                 new_whisper_speech_audio_element("audio-" + available_audio_elements, Math.floor(audioBuffer.duration));
                 audio_sources.push(audioSource);  // Store the source for later use
 
+                if (isAudioPlaying) {
+                    console.log("3. Audio interrupted by new segments so as to not overlap with the person speaking!!")
+        
+                    // if audio is playing right now when new segments are being received, stop the audio playback
+                    if (audio_source) {
+                        audio_source.buffer = null;
+                        audio_source.disconnect();
+                        audio_source.stop();
+                    }
+                    isAudioPlaying = false;
+                }
+
                 audioSource.start();
             }, function(e) {
                 console.log("Error decoding audio data: " + e.err);
@@ -177,6 +189,18 @@ function initWebSocket() {
 
         document.getElementById("transcription-" + available_transcription_elements).innerHTML = "<p>" + data["segments"][0].text + "</p>"; 
 
+        if (isAudioPlaying) {
+            console.log("2. Audio interrupted by new segments so as to not overlap with the person speaking!!")
+
+            // if audio is playing right now when new segments are being received, stop the audio playback
+            if (audio_source) {
+                audio_source.buffer = null;
+                audio_source.disconnect();
+                audio_source.stop();
+            }
+            isAudioPlaying = false;
+        }
+
         if (data["eos"] == true) {
             new_transcription_element_state = true;
         }
@@ -184,12 +208,13 @@ function initWebSocket() {
       } else if ("llm_output" in data) {
 
         if (isAudioPlaying) {
+            console.log("1. Audio interrupted by new segments so as to not overlap with the person speaking!!")
+
             // if audio is playing right now when new segments are being received, stop the audio playback
             if (audio_source) {
                 audio_source.buffer = null;
                 audio_source.disconnect();
                 audio_source.stop();
-                console.log("Audio interrupted by new segments so as to not overlap with the person speaking!!")
             }
             isAudioPlaying = false;
         }
