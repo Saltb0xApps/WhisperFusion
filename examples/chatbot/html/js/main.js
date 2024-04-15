@@ -189,6 +189,7 @@ function initWebSocket() {
                 audio_source.buffer = null;
                 audio_source.disconnect();
                 audio_source.stop();
+                console.log("Audio interrupted by new segments so as to not overlap with the person speaking!!")
             }
             isAudioPlaying = false;
         }
