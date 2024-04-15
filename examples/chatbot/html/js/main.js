@@ -130,9 +130,9 @@ function initWebSocket() {
                 new_whisper_speech_audio_element("audio-" + available_audio_elements, Math.floor(audioBuffer.duration));
                 audio_sources.push(audioSource);  // Store the source for later use
 
-                if (isAudioPlaying) {
-                    console.log("3. Audio interrupted by new segments so as to not overlap with the person speaking!!")
-        
+                console.log("3. Audio interrupted by new segments so as to not overlap with the person speaking!!")
+
+                if (isAudioPlaying) {        
                     // if audio is playing right now when new segments are being received, stop the audio playback
                     if (audio_source) {
                         audio_source.buffer = null;
@@ -189,9 +189,9 @@ function initWebSocket() {
 
         document.getElementById("transcription-" + available_transcription_elements).innerHTML = "<p>" + data["segments"][0].text + "</p>"; 
 
-        if (isAudioPlaying) {
-            console.log("2. Audio interrupted by new segments so as to not overlap with the person speaking!!")
+        console.log("2. Audio interrupted by new segments so as to not overlap with the person speaking!!")
 
+        if (isAudioPlaying) {
             // if audio is playing right now when new segments are being received, stop the audio playback
             if (audio_source) {
                 audio_source.buffer = null;
@@ -207,9 +207,9 @@ function initWebSocket() {
 
       } else if ("llm_output" in data) {
 
-        if (isAudioPlaying) {
-            console.log("1. Audio interrupted by new segments so as to not overlap with the person speaking!!")
+        console.log("1. Audio interrupted by new segments so as to not overlap with the person speaking!!")
 
+        if (isAudioPlaying) {
             // if audio is playing right now when new segments are being received, stop the audio playback
             if (audio_source) {
                 audio_source.buffer = null;
