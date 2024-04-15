@@ -39,6 +39,7 @@ class ElevenLabsTTS:
             logging.warning(f"[ElevenLabs WARNING:] API warmup failed with status code {response.status_code}")
         logging.info("[ElevenLabs INFO:] Warmed up ElevenLabs TTS API. Connect to the WebGUI now.")
         self.last_llm_response = None
+        self.last_api_request = None
 
     def run(self, host, port, api_key, voice_id, audio_queue=None, should_send_server_ready=None):
         self.initialize_model(api_key=api_key, voice_id=voice_id)
@@ -70,8 +71,14 @@ class ElevenLabsTTS:
             self.eos = llm_response["eos"]
 
             if self.last_llm_response != llm_output.strip():
+                self.last_llm_response = llm_output.strip()
                 try:
                     start = time.time()
+                    if self.last_api_request is not None and self.last_api_request == llm_output.strip():
+                        logging.info("[ElevenLabs INFO:] Skipping duplicate request.")
+                        continue
+
+                    self.last_api_request = llm_output.strip()
                     response = requests.post(self.endpoint, json={
                         "text": llm_output.strip(),
                         "model_id": "eleven_monolingual_v1",
@@ -81,7 +88,6 @@ class ElevenLabsTTS:
                         }
                     }, headers=self.headers)
                     self.output_audio = response.content 
-                    self.last_llm_response = llm_output.strip()
                     
                     inference_time = time.time() - start
                     logging.info(f"[ElevenLabs INFO:] TTS inference done in {inference_time:.2f} seconds.")
