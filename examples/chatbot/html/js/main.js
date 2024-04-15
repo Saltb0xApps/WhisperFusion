@@ -177,7 +177,11 @@ function initWebSocket() {
 
         if (isAudioPlaying) {
             // if audio is playing right now when new segments are being received, stop the audio playback
-            audio_source.stop();
+            if (audio_source) {
+                audio_source.buffer = null;
+                audio_source.disconnect();
+                audio_source.stop();
+            }
             isAudioPlaying = false;
         }
 

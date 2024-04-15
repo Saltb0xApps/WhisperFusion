@@ -26,7 +26,7 @@ class ElevenLabsTTS:
         logging.info("\n[ElevenLabs INFO:] Warming up ElevenLabs TTS API. Please wait ...\n")
         data = {
             "text": "Hello, I am warming up.",
-            "model_id": "eleven_monolingual_v1",
+            "model_id": "eleven_turbo_v2",
             "voice_settings": {
                 "stability": 0.5,
                 "similarity_boost": 0.5
@@ -81,7 +81,7 @@ class ElevenLabsTTS:
                     self.last_api_request = llm_output.strip()
                     response = requests.post(self.endpoint, json={
                         "text": llm_output.strip(),
-                        "model_id": "eleven_monolingual_v1",
+                        "model_id": "eleven_turbo_v2",
                         "voice_settings": {
                             "stability": 0.5,
                             "similarity_boost": 0.5
