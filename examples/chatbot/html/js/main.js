@@ -175,6 +175,14 @@ function initWebSocket() {
             new_transcription_element_state = false;
         }
 
+        document.getElementById("transcription-" + available_transcription_elements).innerHTML = "<p>" + data["segments"][0].text + "</p>"; 
+
+        if (data["eos"] == true) {
+            new_transcription_element_state = true;
+        }
+
+      } else if ("llm_output" in data) {
+
         if (isAudioPlaying) {
             // if audio is playing right now when new segments are being received, stop the audio playback
             if (audio_source) {
@@ -185,15 +193,8 @@ function initWebSocket() {
             isAudioPlaying = false;
         }
 
-        document.getElementById("transcription-" + available_transcription_elements).innerHTML = "<p>" + data["segments"][0].text + "</p>"; 
-
-        if (data["eos"] == true) {
-            new_transcription_element_state = true;
-        }
-
-      } else if ("llm_output" in data) {
-            new_transcription_element("ANI", "https://assets-global.website-files.com/642d7fa975d75b7db86d8846/64ffc6911e069e808b9d99b7_Vectors-Wrapper.svg");
-            new_text_element("<p>" +  data["llm_output"][0] + "</p>", "llm-" + available_transcription_elements);
+        new_transcription_element("ANI", "https://assets-global.website-files.com/642d7fa975d75b7db86d8846/64ffc6911e069e808b9d99b7_Vectors-Wrapper.svg");
+        new_text_element("<p>" +  data["llm_output"][0] + "</p>", "llm-" + available_transcription_elements);
       }
 
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -278,6 +279,7 @@ function new_whisper_speech_audio_element(id, duration) {
     audio_container.className = "whisperspeech-audio-container";
     audio_container.style.maxWidth = "40px";
     audio_container.style.maxHeight = "40px";
+    audio_container.style.display = "none";
 
     var audio_div_element = document.createElement("div");
     var audio_element = document.createElement("audio");

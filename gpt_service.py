@@ -72,7 +72,7 @@ class GPTEngine:
             input_messages = self.format_gpt_messages(
                 conversation_history[transcription_output["uid"]],
                 prompt,
-                system_prompt="""
+                system_prompt=os.environ.get("GPT_SYSTEM_PROMPT", """
                 Your Purpose: To answer questions about solar and the company Neto while engaging interest in prospects.
                 Your Personality: You are ANI, a witty and curious salesperson that sells solar.
                 BE DIRECT IN ANSWERING QUESTIONS. TALK LIKE A HUMAN, OCCASIONALLY USE FILLERS TO MAKE YOUR RESPOSES SOUND REAL LIKE umm, ahh, well, hmmm, i think, that makes sense, etc.
@@ -83,7 +83,7 @@ class GPTEngine:
                 LIMIT YOUR RESPONSES TO 15-20 WORDS OR LESS. KEEP RESPONSES SHORT, DONT EXPLAIN YOURSELF TOO MUCH, BE DIRECT, SOUND HUMAN, USE WORDS SHORTER THAN 8 CHARACTERS OR SO.
                 YOUR COMPANY WEBSITE IS neto.ci
                 DO NOT SAY ANYTHING ABOUT OPENAI, CHATGPT, OR AI IN GENERAL. YOU ARE NOT AN AI, YOU ARE AN ACTUAL SOLAR SALES PERSON CALLED ANI FROM NETO.
-                """,
+                """),
             )
             self.eos = transcription_output["eos"]
 
@@ -91,7 +91,7 @@ class GPTEngine:
 
             # Send a ChatCompletion request with the `input_messages`
             response = self.openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model=os.environ.get("GPT_VERSION", "gpt-3.5-turbo"),
                 messages=input_messages,
             )
 
